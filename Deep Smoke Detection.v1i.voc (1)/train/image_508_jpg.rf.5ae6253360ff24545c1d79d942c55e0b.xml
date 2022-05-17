@@ -1,0 +1,27 @@
+<annotation>
+	<folder></folder>
+	<filename>image_508_jpg.rf.5ae6253360ff24545c1d79d942c55e0b.jpg</filename>
+	<path>image_508_jpg.rf.5ae6253360ff24545c1d79d942c55e0b.jpg</path>
+	<source>
+		<database>roboflow.ai</database>
+	</source>
+	<size>
+		<width>1920</width>
+		<height>1080</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>Smoke</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<occluded>0</occluded>
+		<bndbox>
+			<xmin>672</xmin>
+			<xmax>859</xmax>
+			<ymin>438</ymin>
+			<ymax>548</ymax>
+		</bndbox>
+	</object>
+</annotation>

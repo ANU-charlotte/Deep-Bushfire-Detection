@@ -1,0 +1,27 @@
+<annotation>
+	<folder></folder>
+	<filename>image_88_jpg.rf.4a9d8cf54d4c8076a5b9b27c6e0d8797.jpg</filename>
+	<path>image_88_jpg.rf.4a9d8cf54d4c8076a5b9b27c6e0d8797.jpg</path>
+	<source>
+		<database>roboflow.ai</database>
+	</source>
+	<size>
+		<width>1920</width>
+		<height>1080</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>instance_salient_object</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<occluded>0</occluded>
+		<bndbox>
+			<xmin>1309</xmin>
+			<xmax>1329</xmax>
+			<ymin>498</ymin>
+			<ymax>524</ymax>
+		</bndbox>
+	</object>
+</annotation>

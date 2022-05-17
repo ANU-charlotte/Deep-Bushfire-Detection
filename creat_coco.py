@@ -7,7 +7,7 @@ import numpy as np
 import json
 
 # box format:[xmin, ymin, xmax, ymax]  transfer to [xmin, ymin, w, h] in code
-
+# matlab bounding box format:[xmin, ymin, width, height], so no need transform in code
 img_root = '/Users/charlottekwong/Documents/Deep-Bushfire-Detection/data/training'
 # boxes_root = '/data/local_userdata/tianxinyu/COME_instance/boxes/'
 # masks_root = '/data/local_userdata/tianxinyu/COME_instance/masks/'
@@ -21,10 +21,10 @@ info_content = []
 info_content.extend(
     [
         {
-            "contributor": "Xinyu Tian",
-            "date_created": "2022_02_18",
-            "description": "COME_train_dataset_multi_instances_label5_COCO_format",
-            "url": "https://github.com/JingZhang617/cascaded_rgbd_sod",
+            "contributor": "Xinyu Tian, Charlotte Kwong",
+            "date_created": "2022_05_12",
+            "description": "Deep_smoke_detection_COCO_format",
+            "url": "https://github.com/ANU-charlotte/Deep-Bushfire-Detection",
             "version": "1.0",
             "year": "2022"
         }
@@ -38,7 +38,7 @@ licen_content.extend(
         {
             "id": 1,
             "name": "license",
-            "url": "https://github.com/JingZhang617/cascaded_rgbd_sod"
+            "url": "https://github.com/ANU-charlotte/Deep-Bushfire-Detection"
         }
     ]
 )
@@ -49,8 +49,8 @@ cate_content.extend(
     [
         {
             "id": 1,
-            "name": "instance_salient_object",
-            "supercategory": "instance_salient_object"
+            "name": "Smoke",
+            "supercategory": "Smoke"
         }
     ]
 )
@@ -100,7 +100,7 @@ for i, (img, target) in enumerate(d_train):
         # print(len(seg_polygon[0]))
         # print(area)
         bbox_xyxy = bbox[k]
-        bbox_xywh = [bbox_xyxy[0], bbox_xyxy[1], bbox_xyxy[2]-bbox_xyxy[0], bbox_xyxy[3]-bbox_xyxy[1]]
+        bbox_xywh = [bbox_xyxy[0], bbox_xyxy[1], bbox_xyxy[2], bbox_xyxy[3]]
         area = bbox_xywh[2] * bbox_xywh[3]
         annotations_list.extend(
             [
@@ -126,7 +126,7 @@ print(instance_num)
 coco_label["images"] = images_list
 coco_label["annotations"] = annotations_list
 
-with open(json_result_file+'label5.json', "w+") as f:
+with open(json_result_file+'smoke.json', "w+") as f:
     json.dump(coco_label, f, cls=NumpyEncoder)         # encode json data
 
 
