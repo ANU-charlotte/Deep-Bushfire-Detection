@@ -8,3 +8,6 @@ I first extracted the smoke footages as frames and labelled them individually on
 
 # Faster-RCNN Object Detection with Pytorch
 The first part of this project involes data preparation (bounding-box labelling) and applying Faster-RCNN for object detection. My training and modelling codes follows closely to this tutorial on custom object detection with Faster-RCNN by Sovit Ranjan RathSovit Ranjan Rath (https://debuggercafe.com/custom-object-detection-using-pytorch-faster-rcnn/).
+
+# Contact 
+Please feel free to contact me at charlotte.kwong@anu.edu.au
