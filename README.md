@@ -2,7 +2,7 @@
 This project aims to study how different state-of-the-art detection / segmentation model's perform on our smoke data obtained from fire tower cameras around the ACT. The goal is to apply both weakly-supervised learning with bounding-box labels, as well as fully-supervised learning with fully labelled image segmentations to the models and evaluate their performance. 
 
 # Data preparation
-For data preparation, I first extracted the smoke footages as frames and labelled them individually on MATLAB using the image labeller tool in the toolbox. Then, a matrix of gTruth box values are obtained. I converted each row of the matrix as its own individual .txt file. Then, applying `creat_coco.py` to create a coco dataset. After that, I uploaded both my images and its coco json annotations to roboflow to generate a dataset. This dataset set is now made avaible to public through this link: https://app.roboflow.com/honours/deep-smoke-detection/2 
+I first extracted the smoke footages as frames and labelled them individually on MATLAB using the image labeller tool in the toolbox. Then, a matrix of gTruth box values are obtained. I converted each row of the matrix as its own individual .txt file. Then, applying `creat_coco.py` to create a coco dataset. After that, I uploaded both my images and its coco json annotations to roboflow to generate a dataset. This dataset set is now made avaible to public through this link: https://app.roboflow.com/honours/deep-smoke-detection/2 
 
 ![Alt text](example2.png)
 
