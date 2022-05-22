@@ -12,18 +12,20 @@ from datasets import (
 import torch
 import matplotlib.pyplot as plt
 import time
-plt.style.use('ggplot')
-
 import ssl
-ssl._create_default_https_context = ssl._create_unverified_context
+'''
+training.py performs model training on training set and validation on validation set
+'''
+plt.style.use('ggplot')
+# Allow download of fasterRCNN ResNet 50
+ssl._create_default_https_context = ssl._create_unverified_context # Can comment out if no issue while downloading
 
-# function for running training iterations
 def train(train_data_loader, model):
     print('Training')
     global train_itr
     global train_loss_list
 
-    # initialize tqdm progress bar
+    # Initialize tqdm progress bar
     prog_bar = tqdm(train_data_loader, total=len(train_data_loader))
 
     for i, data in enumerate(prog_bar):
@@ -37,16 +39,18 @@ def train(train_data_loader, model):
         loss_value = losses.item()
         train_loss_list.append(loss_value)
         train_loss_hist.send(loss_value)
+
+        # Back-propagation
         losses.backward()
         optimizer.step()
         train_itr += 1
 
-        # update the loss value beside the progress bar for each iteration
+        # Update loss each iteration
         prog_bar.set_description(desc=f"Loss: {loss_value:.4f}")
     return train_loss_list
 
 
-# function for running validation iterations
+# Validating validation set
 def validate(valid_data_loader, model):
     print('Validating')
     global val_itr
@@ -80,38 +84,36 @@ if __name__ == '__main__':
     valid_loader = create_valid_loader(valid_dataset, NUM_WORKERS)
     print(f"Number of training samples: {len(train_dataset)}")
     print(f"Number of validation samples: {len(valid_dataset)}\n")
-    # initialize the model and move to the computation device
+    # Initialise the model and move to the computation device
     model = create_model(num_classes=NUM_CLASSES)
     model = model.to(DEVICE)
-    # get the model parameters
+    # Get the model parameters
     params = [p for p in model.parameters() if p.requires_grad]
-    # define the optimizer
+    # Define the optimizer
     optimizer = torch.optim.SGD(params, lr=0.001, momentum=0.9, weight_decay=0.0005)
-    # initialize the Averager class
+    # Initialize the Averager class
     train_loss_hist = Averager()
     val_loss_hist = Averager()
     train_itr = 1
     val_itr = 1
-    # train and validation loss lists to store loss values of all...
-    # ... iterations till ena and plot graphs for all iterations
+    # List for storing loss values
     train_loss_list = []
     val_loss_list = []
-    # name to save the trained model with
     MODEL_NAME = 'model'
-    # whether to show transformed images from data loader or not
+    # Display images prior to training
     if VISUALIZE_TRANSFORMED_IMAGES:
         from custom_utils import show_tranformed_image
 
         show_tranformed_image(train_loader)
-    # initialize SaveBestModel class
+    # Initialize SaveBestModel class
     save_best_model = SaveBestModel()
-    # start the training epochs
+    # Start the training epochs
     for epoch in range(NUM_EPOCHS):
         print(f"\nEPOCH {epoch + 1} of {NUM_EPOCHS}")
-        # reset the training and validation loss histories for the current epoch
+        # Reset the training and validation loss histories for the current epoch
         train_loss_hist.reset()
         val_loss_hist.reset()
-        # start timer and carry out training and validation
+        # Start timer and carry out training and validation
         start = time.time()
         train_loss = train(train_loader, model)
         val_loss = validate(valid_loader, model)
@@ -119,15 +121,13 @@ if __name__ == '__main__':
         print(f"Epoch #{epoch + 1} validation loss: {val_loss_hist.value:.3f}")
         end = time.time()
         print(f"Took {((end - start) / 60):.3f} minutes for epoch {epoch}")
-        # save the best model till now if we have the least loss in the...
-        # ... current epoch
+        # Save the best model
         save_best_model(
             val_loss_hist.value, epoch, model, optimizer
         )
-        # save the current epoch model
+        # Save current epoch model
         save_model(epoch, model, optimizer)
-        # save loss plot
+        # Save loss plot
         save_loss_plot(OUT_DIR, train_loss, val_loss)
 
-        # sleep for 5 seconds after each epoch
         time.sleep(5)
