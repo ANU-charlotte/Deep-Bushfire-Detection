@@ -12,7 +12,10 @@ Below shows an example of a labelled image for training.
 This part of the code can be used for custom coco dataset creation, feel free to replace `data` folder with your own set of testing, training and box labels. 
 
 # Faster-RCNN Object Detection with Pytorch
-The first part of this project involes data preparation (bounding-box labelling) and applying Faster-RCNN for object detection. My training and modelling codes follows closely to this tutorial on custom object detection with Faster-RCNN by Sovit Ranjan RathSovit Ranjan Rath (Please see anowledgement).
+ResNet50 backbone from Torchvision classification model was applied. My training, modelling and testing codes follows closely to this tutorial on custom object detection with Faster-RCNN by Sovit Ranjan RathSovit Ranjan Rath (Please see anowledgement).
+
+# Performance Evaluation
+TODO: write function to define model scores 
 
 # Acknowledgement
 Sovit Ranjan RathSovit Ranjan Rath's custom object detection on Fast-RCNN https://debuggercafe.com/custom-object-detection-using-pytorch-faster-rcnn/
