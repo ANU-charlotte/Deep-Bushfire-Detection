@@ -1,3 +1,7 @@
+"""
+Custom_utils.py includes helper functions and 2 classes, 1 for averaging loss, the other for saving best model based
+on loss value.
+"""
 import albumentations as A
 import cv2
 import numpy as np
@@ -9,15 +13,13 @@ from config import DEVICE, CLASSES
 plt.style.use('ggplot')
 
 
-# Averager class keeps track of the training and validation loss values,
-# and gets average for each epoch
-class Averager:
+class AverageLoss:
     def __init__(self):
-        self.current_total = 0.0
+        self.total = 0.0
         self.iterations = 0.0
 
     def send(self, value):
-        self.current_total += value
+        self.total += value
         self.iterations += 1
 
     @property
@@ -25,18 +27,15 @@ class Averager:
         if self.iterations == 0:
             return 0
         else:
-            return 1.0 * self.current_total / self.iterations
+            return self.total / self.iterations
 
     def reset(self):
-        self.current_total = 0.0
-        self.iterations = 0.0
-
+        self.total = 0
+        self.iterations = 0
 
 class SaveBestModel:
     """
-    Class to save the best model while training. If the current epoch's
-    validation loss is less than the previous least less, then save the
-    model state.
+    Save the model with the least loss as a .pth file
     """
 
     def __init__(
@@ -58,28 +57,24 @@ class SaveBestModel:
                 'optimizer_state_dict': optimizer.state_dict(),
             }, 'outputs/best_model.pth')
 
-# Helper functions
 
 def collate_fn(batch):
     """
-    To handle the data loading as different images may have different number
-    of objects and to handle varying size tensors as well.
+    Data handling function for images with multiple 'Smoke' objects
     """
     return tuple(zip(*batch))
-# define the training tranforms
+
 def get_train_transform():
+    """
+    No trasnformation needed because dataset are frames extracted from videos
+    """
     return A.Compose([
-        #A.Flip(0.5),
-        #A.RandomRotate90(0.5),
-        #A.MotionBlur(p=0.2),
-        #A.MedianBlur(blur_limit=3, p=0.1),
-        #A.Blur(blur_limit=3, p=0.1),
         ToTensorV2(p=1.0),
     ], bbox_params={
         'format': 'pascal_voc',
         'label_fields': ['labels']
     })
-# define the validation transforms
+
 def get_valid_transform():
     return A.Compose([
         ToTensorV2(p=1.0),
@@ -89,10 +84,7 @@ def get_valid_transform():
     })
 def show_tranformed_image(train_loader):
     """
-    This function shows the transformed images from the `train_loader`.
-    Helps to check whether the tranformed images along with the corresponding
-    labels are correct or not.
-    Only runs if `VISUALIZE_TRANSFORMED_IMAGES = True` in config.py.
+    Display example images in train.py before running training
     """
     if len(train_loader) > 0:
         for i in range(1):
@@ -102,20 +94,21 @@ def show_tranformed_image(train_loader):
             boxes = targets[i]['boxes'].cpu().numpy().astype(np.int32)
             labels = targets[i]['labels'].cpu().numpy().astype(np.int32)
             sample = images[i].permute(1, 2, 0).cpu().numpy()
+            colour = (0, 255, 0)
             for box_num, box in enumerate(boxes):
                 cv2.rectangle(sample,
                             (box[0], box[1]),
                             (box[2], box[3]),
-                            (0, 0, 255), 2)
+                            colour, 2)
                 cv2.putText(sample, CLASSES[labels[box_num]],
                             (box[0], box[1]-10), cv2.FONT_HERSHEY_SIMPLEX,
-                            1.0, (0, 0, 255), 2)
-            cv2.imshow('Transformed image', sample)
+                            1.0, colour, 2)
+            cv2.imshow('Example image', sample)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 def save_model(epoch, model, optimizer):
     """
-    Function to save the trained model till current epoch, or whenver called
+    Saves model as .pth
     """
     torch.save({
                 'epoch': epoch+1,
@@ -123,15 +116,15 @@ def save_model(epoch, model, optimizer):
                 'optimizer_state_dict': optimizer.state_dict(),
                 }, 'outputs/last_model.pth')
 def save_loss_plot(OUT_DIR, train_loss, val_loss):
-    figure_1, train_ax = plt.subplots()
-    figure_2, valid_ax = plt.subplots()
+    train_fig, train_ax = plt.subplots()
+    valid_fig, valid_ax = plt.subplots()
     train_ax.plot(train_loss, color='tab:blue')
     train_ax.set_xlabel('iterations')
     train_ax.set_ylabel('train loss')
     valid_ax.plot(val_loss, color='tab:red')
     valid_ax.set_xlabel('iterations')
     valid_ax.set_ylabel('validation loss')
-    figure_1.savefig(f"{OUT_DIR}/train_loss.png")
-    figure_2.savefig(f"{OUT_DIR}/valid_loss.png")
+    train_fig.savefig(f"{OUT_DIR}/train_loss.png")
+    valid_fig.savefig(f"{OUT_DIR}/valid_loss.png")
     print('SAVING PLOTS COMPLETE...')
     plt.close('all')
