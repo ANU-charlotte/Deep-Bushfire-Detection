@@ -131,4 +131,3 @@ if __name__ == '__main__':
         # Save loss plot
         save_loss_plot(OUT_DIR, train_loss, val_loss)
 
-        time.sleep(5)
