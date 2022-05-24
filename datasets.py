@@ -1,3 +1,6 @@
+"""
+datasets.py includes custom data loader, custom dataset class
+"""
 import torch
 import cv2
 import numpy as np
@@ -10,34 +13,32 @@ from config import (
 from torch.utils.data import Dataset, DataLoader
 from custom_utils import collate_fn, get_train_transform, get_valid_transform
 
-
-# the dataset class
-class CustomDataset(Dataset):
+class MyDataset(Dataset):
+    """
+    Custom dataset class
+    """
     def __init__(self, dir_path, width, height, classes, transforms=None):
-        self.transforms = transforms
+        self.transforms = transforms # No transformations
         self.dir_path = dir_path
         self.height = height
         self.width = width
         self.classes = classes
-
-        # get all the image paths in sorted order
         self.image_paths = glob.glob(f"{self.dir_path}/*.jpg")
         self.all_images = [image_path.split(os.path.sep)[-1] for image_path in self.image_paths]
         self.all_images = sorted(self.all_images)
 
     def __getitem__(self, idx):
-        # capture the image name and the full image path
+        """
+        Returns the data of [idx] indexed image
+        """
         image_name = self.all_images[idx]
         image_path = os.path.join(self.dir_path, image_name)
-        # read the image
         image = cv2.imread(image_path)
-        # convert BGR to RGB color format
-        # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB).astype(np.float32)
         image = image.astype(np.float32)
         image_resized = cv2.resize(image, (self.width, self.height))
-        image_resized /= 255.0
+        image_resized /= 255.0  # Normalise image
 
-        # capture the corresponding XML file for getting the annotations
+        # Extract XML file for getting the bounding-box annotations
         annot_filename = image_name[:-4] + '.xml'
         annot_file_path = os.path.join(self.dir_path, annot_filename)
 
@@ -45,44 +46,35 @@ class CustomDataset(Dataset):
         labels = []
         tree = et.parse(annot_file_path)
         root = tree.getroot()
+        image_height, image_width = image.shape
 
-        # get the height and width of the image
-        image_width = image.shape[1]
-        image_height = image.shape[0]
-
-        # box coordinates for xml files are extracted and corrected for image size given
+        # Box coordinates
         for member in root.findall('object'):
-            # map the current object name to `classes` list to get...
-            # ... the label index and append to `labels` list
+            # Returns all 'Smoke' object names and return their index
             labels.append(self.classes.index(member.find('name').text))
 
-            # xmin = left corner x-coordinates
-            xmin = int(member.find('bndbox').find('xmin').text)
-            # xmax = right corner x-coordinates
-            xmax = int(member.find('bndbox').find('xmax').text)
-            # ymin = left corner y-coordinates
-            ymin = int(member.find('bndbox').find('ymin').text)
-            # ymax = right corner y-coordinates
-            ymax = int(member.find('bndbox').find('ymax').text)
+            x_min = int(member.find('bndbox').find('xmin').text)
+            x_max = int(member.find('bndbox').find('xmax').text)
+            y_min = int(member.find('bndbox').find('ymin').text)
+            y_max = int(member.find('bndbox').find('ymax').text)
 
-            # resize the bounding boxes according to the...
-            # ... desired `width`, `height`
-            xmin_final = (xmin / image_width) * self.width
-            xmax_final = (xmax / image_width) * self.width
-            ymin_final = (ymin / image_height) * self.height
-            yamx_final = (ymax / image_height) * self.height
+            x_min = (x_min / image_width) * self.width
+            x_max = (x_max / image_width) * self.width
+            y_min = (y_min / image_height) * self.height
+            y_max = (y_max / image_height) * self.height
 
-            boxes.append([xmin_final, ymin_final, xmax_final, yamx_final])
+            boxes.append([x_min, y_min, x_max, y_max])
 
-        # bounding box to tensor
+        # To tensor
         boxes = torch.as_tensor(boxes, dtype=torch.float32)
-        # area of the bounding boxes
-        area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
-        # no crowd instances
+        # Area
+        w = (boxes[:, 2] - boxes[:, 0])
+        h = (boxes[:, 3] - boxes[:, 1])
+        area = w*h
+        # Ensure no crowd instances
         iscrowd = torch.zeros((boxes.shape[0],), dtype=torch.int64)
-        # labels to tensor
         labels = torch.as_tensor(labels, dtype=torch.int64)
-        # prepare the final `target` dictionary
+        # Prepare `target` dictionary
         target = {}
         target["boxes"] = boxes
         target["labels"] = labels
@@ -90,7 +82,7 @@ class CustomDataset(Dataset):
         target["iscrowd"] = iscrowd
         image_id = torch.tensor([idx])
         target["image_id"] = image_id
-        # apply the image transforms
+
         if self.transforms:
             sample = self.transforms(image=image_resized,
                                      bboxes=target['boxes'],
@@ -104,18 +96,26 @@ class CustomDataset(Dataset):
         return len(self.all_images)
 
 
-# prepare the final datasets and data loaders
 def create_train_dataset():
-    train_dataset = CustomDataset(TRAIN_DIR, RESIZE_TO, RESIZE_TO, CLASSES, get_train_transform())
+    """
+    Create Training Dataset
+    """
+    train_dataset = MyDataset(TRAIN_DIR, RESIZE_TO, RESIZE_TO, CLASSES, get_train_transform())
     return train_dataset
 
 
 def create_valid_dataset():
-    valid_dataset = CustomDataset(VALID_DIR, RESIZE_TO, RESIZE_TO, CLASSES, get_valid_transform())
+    """
+        Create Validation Dataset
+    """
+    valid_dataset = MyDataset(VALID_DIR, RESIZE_TO, RESIZE_TO, CLASSES, get_valid_transform())
     return valid_dataset
 
 
 def create_train_loader(train_dataset, num_workers=0):
+    """
+        Create Training Loader
+    """
     train_loader = DataLoader(
         train_dataset,
         batch_size=BATCH_SIZE,
@@ -127,6 +127,9 @@ def create_train_loader(train_dataset, num_workers=0):
 
 
 def create_valid_loader(valid_dataset, num_workers=0):
+    """
+        Create Validation Loader
+    """
     valid_loader = DataLoader(
         valid_dataset,
         batch_size=BATCH_SIZE,
@@ -137,18 +140,13 @@ def create_valid_loader(valid_dataset, num_workers=0):
     return valid_loader
 
 
-# execute datasets.py using Python command from Terminal...
-# ... to visualize sample images
-# USAGE: python datasets.py
+
 if __name__ == '__main__':
-    # sanity check of the Dataset pipeline with sample visualization
-    dataset = CustomDataset(
+    dataset = MyDataset(
         TRAIN_DIR, RESIZE_TO, RESIZE_TO, CLASSES
     )
-    print(f"Number of training images: {len(dataset)}")
 
 
-    # function to visualize a single sample
     def visualize_sample(image, target):
         for box_num in range(len(target['boxes'])):
             box = target['boxes'][box_num]
@@ -160,11 +158,10 @@ if __name__ == '__main__':
             )
             cv2.putText(
                 image, label, (int(box[0]), int(box[1] - 5)),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2
             )
         cv2.imshow('Image', image)
         cv2.waitKey(0)
-
 
     NUM_SAMPLES_TO_VISUALIZE = 5
     for i in range(NUM_SAMPLES_TO_VISUALIZE):
