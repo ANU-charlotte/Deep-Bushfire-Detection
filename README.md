@@ -26,4 +26,4 @@ ResNet50 backbone from Torchvision classification model was applied. My training
 TODO: write function to define model scores 
 
 # Acknowledgement
-I would like to acknowledge Sovit Ranjan Rath's custom object detection tutorial on Fast-RCNN https://debuggercafe.com/custom-object-detection-using-pytorch-faster-rcnn/ 
+I would like to acknowledge Sovit Ranjan Rath's custom object detection tutorial on Fast-RCNN on the development of this project https://debuggercafe.com/custom-object-detection-using-pytorch-faster-rcnn/ 
