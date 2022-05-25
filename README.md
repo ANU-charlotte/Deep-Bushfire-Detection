@@ -23,7 +23,7 @@ Below shows an example of a labelled image for training.
 
 This part of the code can be used for custom coco dataset creation, feel free to replace `data` folder with your own set of testing, training and box labels. 
 
-# Faster-RCNN Object Detection with Pytorch and ResNET50 backbone
+# Faster-RCNN Object Detection with Pytorch and ResNet50 backbone
 My training, modelling and testing codes follows closely to this tutorial on custom object detection with Faster-RCNN by Sovit Ranjan RathSovit Ranjan Rath (Please see anowledgement). Work-to-date had shown that there in still much more improvement to be made with the model. While some smoke are detected, a lot of the times when a smoke is spread out or relatively zoomed-in, a detection was failed to make. I would like to continue training the model to obtain better results. Below shows examples of detected smoke:
 
 ![Test Image2](markdown_images/Capture10.PNG)
