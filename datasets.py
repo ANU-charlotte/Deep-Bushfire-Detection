@@ -46,7 +46,7 @@ class MyDataset(Dataset):
         labels = []
         tree = et.parse(annot_file_path)
         root = tree.getroot()
-        image_height, image_width = image.shape
+        image_height, image_width = image.shape[0], image.shape[1]
 
         # Box coordinates
         for member in root.findall('object'):

@@ -8,8 +8,8 @@ NUM_WORKERS = 4
 #DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 DEVICE = torch.device('cpu')
 # Training and Validation directory
-TRAIN_DIR = 'Deep Smoke Detection.v1i.voc (1)/train'
-VALID_DIR = 'Deep Smoke Detection.v1i.voc (1)/valid'
+TRAIN_DIR = 'Deep Smoke Detection.v1i.voc/train'
+VALID_DIR = 'Deep Smoke Detection.v1i.voc/valid'
 
 CLASSES = [
     '__background__', 'Smoke'

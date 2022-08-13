@@ -42,7 +42,10 @@ while (cap.isOpened()):
         image = frame.copy()
         image = image.astype(np.float32)
         # Normalise pixel range
-        image /= 255.0
+        # image /= 255.0
+
+        # Normalise using: (x-u)/sigma
+        image = (image - np.mean(image))/np.std(image)
         # TODO: Removed line for BRG to RGB conversion, add to see difference
         image = np.transpose(image, (2, 0, 1)).astype(np.float32) # Might try removing this line too...
         # To tensor
