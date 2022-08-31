@@ -98,7 +98,19 @@ if __name__ == '__main__':
     model.load_state_dict(checkpoint['model_state_dict'], strict=False)
     for param in model.parameters():
         param.requires_grad = False
+    saved_state_gnn = torch.load(args.restore_from)
     GNNmodel = GNNNet(num_classes=NUM_CLASSES)
+    new_params = model.state_dict().copy()
+    calt = 0
+    for i in saved_state_gnn["model"]:
+        # Scale.layer5.conv2d_list.3.weight
+        i_parts = i.split('.')  # 针对多GPU的情况
+        # i_parts.pop(1)
+        # print('i_parts:  ', '.'.join(i_parts[1:-1]))
+        # if  not i_parts[1]=='main_classifier': #and not '.'.join(i_parts[1:-1]) == 'layer5.bottleneck' and not '.'.join(i_parts[1:-1]) == 'layer5.bn':  #init model pretrained on COCO, class name=21, layer5 is ASPP
+        new_params['linear_e' + '.' + '.'.join(i_parts[1:])] = saved_state_gnn["model"][i]
+    model.load_state_dict(new_params)
+    updated_feature =
     model = generate_prediction_with_updated_features(model, updated_feature,num_classes=NUM_CLASSES)
     model = model.to(DEVICE)
     # Get the model parameters
