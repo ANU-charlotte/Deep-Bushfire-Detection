@@ -1,6 +1,6 @@
 import torch
 
-BATCH_SIZE = 8
+BATCH_SIZE = 8*9  #8*9*h*w
 RESIZE_TO = 416
 NUM_EPOCHS = 10
 NUM_WORKERS = 4
@@ -20,4 +20,4 @@ NUM_CLASSES = len(CLASSES)
 VISUALIZE_TRANSFORMED_IMAGES = True
 
 # Location to save model and plots
-OUT_DIR = 'outputs'
+OUT_DIR = 'outputs_video'

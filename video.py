@@ -9,15 +9,17 @@ from model import create_model
 from config import (
     NUM_CLASSES, DEVICE, CLASSES
 )
+from GNN import GNNNet
 
 # Specify command line options for running on cmd
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--input', help='path to input video',
-    default='Deep Smoke Detection.v1i.voc (1)/video/testing.mp4')
+    default='testing.mp4')
 args = vars(parser.parse_args())
 
 # Load the best model and trained weights
 model = create_model(num_classes=NUM_CLASSES)
+
 checkpoint = torch.load('outputs/best_model.pth', map_location=DEVICE)
 model.load_state_dict(checkpoint['model_state_dict'])
 model.to(DEVICE).eval()
@@ -30,7 +32,7 @@ if (cap.isOpened() == False):
 
 save_name = str('videoTest')
 # Create VideoWriter object
-out = cv2.VideoWriter(f"inference_outputs/videos/{save_name}.mp4",
+out = cv2.VideoWriter(f"inference_outputs/videos/{save_name}2.mp4",
                       cv2.VideoWriter_fourcc(*'mp4v'), 30,
                       RESIZE_TO)
 

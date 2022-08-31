@@ -5,7 +5,7 @@ from config import (
     DEVICE, NUM_CLASSES, NUM_EPOCHS, OUT_DIR,
     VISUALIZE_TRANSFORMED_IMAGES, NUM_WORKERS,
 )
-from model import create_model
+from model import create_model, generate_prediction_with_updated_features
 from custom_utils import AverageLoss, SaveBestModel, save_model, save_loss_plot
 from tqdm.auto import tqdm
 from datasets import (
@@ -16,7 +16,7 @@ import torch
 import matplotlib.pyplot as plt
 import time
 import ssl
-
+from GNN import GNNNet
 plt.style.use('ggplot')
 # Allow download of fasterRCNN ResNet 50
 ssl._create_default_https_context = ssl._create_unverified_context # Can comment out if there is no issue while downloading
@@ -86,7 +86,20 @@ if __name__ == '__main__':
     print(f"Number of training samples: {len(train_dataset)}")
     print(f"Number of validation samples: {len(valid_dataset)}\n")
     # Initialise the model and move to the computation device
-    model = create_model(num_classes=NUM_CLASSES)
+    infeature, model = create_model(num_classes=2)
+    DEVICE = torch.device('cpu')
+    checkpoint = torch.load('outputs/best_model.pth', map_location=DEVICE)
+    del checkpoint['model_state_dict']['roi_heads.box_predictor.cls_score.weight']
+    del checkpoint['model_state_dict']['roi_heads.box_predictor.cls_score.bias']
+    del checkpoint['model_state_dict']['roi_heads.box_predictor.bbox_pred.weight']
+    del checkpoint['model_state_dict']['roi_heads.box_predictor.bbox_pred.bias']
+    torch.save(checkpoint, "modified_model.pth")
+    new_checkpoint = torch.load("modified_model.pth", map_location=DEVICE)
+    model.load_state_dict(checkpoint['model_state_dict'], strict=False)
+    for param in model.parameters():
+        param.requires_grad = False
+    GNNmodel = GNNNet(num_classes=NUM_CLASSES)
+    model = generate_prediction_with_updated_features(model, updated_feature,num_classes=NUM_CLASSES)
     model = model.to(DEVICE)
     # Get the model parameters
     params = [p for p in model.parameters() if p.requires_grad]
