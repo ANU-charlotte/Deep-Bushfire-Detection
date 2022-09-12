@@ -21,3 +21,4 @@ def generate_prediction_with_updated_features(model,updated_feature,num_classes)
 
 
 
+print(create_model(2))

@@ -1,6 +1,6 @@
 import torch
 
-BATCH_SIZE = 8*9  #8*9*h*w
+BATCH_SIZE = 3  #8*9*h*w
 RESIZE_TO = 416
 NUM_EPOCHS = 10
 NUM_WORKERS = 4

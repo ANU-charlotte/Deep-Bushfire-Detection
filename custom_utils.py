@@ -45,7 +45,7 @@ class SaveBestModel:
 
     def __call__(
             self, current_valid_loss,
-            epoch, model, optimizer
+            epoch, model, GNNmodel, optimizer
     ):
         if current_valid_loss < self.best_valid_loss:
             self.best_valid_loss = current_valid_loss
@@ -54,6 +54,7 @@ class SaveBestModel:
             torch.save({
                 'epoch': epoch + 1,
                 'model_state_dict': model.state_dict(),
+                'gnn_state_dict':GNNmodel.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
             }, 'outputs/best_model.pth')
 
@@ -106,13 +107,14 @@ def show_tranformed_image(train_loader):
             cv2.imshow('Example image', sample)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
-def save_model(epoch, model, optimizer):
+def save_model(epoch, model, GNNmodel, optimizer):
     """
     Saves model as .pth
     """
     torch.save({
                 'epoch': epoch+1,
                 'model_state_dict': model.state_dict(),
+                'gnn_state_dict': GNNmodel.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 }, 'outputs/last_model.pth')
 def save_loss_plot(OUT_DIR, train_loss, val_loss):
