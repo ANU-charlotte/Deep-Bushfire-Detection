@@ -12,6 +12,7 @@ from datasets import (
     create_train_dataset, create_valid_dataset,
     create_train_loader, create_valid_loader
 )
+import argparse
 import torch
 import matplotlib.pyplot as plt
 import time
@@ -77,6 +78,7 @@ def validate(valid_data_loader, model):
         progressBar.set_description(desc=f"Loss: {loss_value:.4f}")
     return val_loss_list
 
+# GNN codes
 
 if __name__ == '__main__':
     train_dataset = create_train_dataset()
@@ -93,25 +95,24 @@ if __name__ == '__main__':
     del checkpoint['model_state_dict']['roi_heads.box_predictor.cls_score.bias']
     del checkpoint['model_state_dict']['roi_heads.box_predictor.bbox_pred.weight']
     del checkpoint['model_state_dict']['roi_heads.box_predictor.bbox_pred.bias']
+
+    # Freeze
+    model.load_state_dict(checkpoint['model_state_dict'], strict=False)
+    freeze = ['FastRCNNPredictor']  # parameter names to freeze (full or partial)
+    for k, v in model.named_parameters():
+        v.requires_grad = True  # train all layers
+        if any(x in k for x in freeze):
+            print('freezing %s' % k)
+            v.requires_grad = False
     torch.save(checkpoint, "modified_model.pth")
     new_checkpoint = torch.load("modified_model.pth", map_location=DEVICE)
-    model.load_state_dict(checkpoint['model_state_dict'], strict=False)
-    for param in model.parameters():
-        param.requires_grad = False
-    saved_state_gnn = torch.load(args.restore_from)
-    GNNmodel = GNNNet(num_classes=NUM_CLASSES)
-    new_params = model.state_dict().copy()
-    calt = 0
-    for i in saved_state_gnn["model"]:
-        # Scale.layer5.conv2d_list.3.weight
-        i_parts = i.split('.')  # 针对多GPU的情况
-        # i_parts.pop(1)
-        # print('i_parts:  ', '.'.join(i_parts[1:-1]))
-        # if  not i_parts[1]=='main_classifier': #and not '.'.join(i_parts[1:-1]) == 'layer5.bottleneck' and not '.'.join(i_parts[1:-1]) == 'layer5.bn':  #init model pretrained on COCO, class name=21, layer5 is ASPP
-        new_params['linear_e' + '.' + '.'.join(i_parts[1:])] = saved_state_gnn["model"][i]
-    model.load_state_dict(new_params)
-    updated_feature =
-    model = generate_prediction_with_updated_features(model, updated_feature,num_classes=NUM_CLASSES)
+
+    print(model)
+    GNNmodel = GNNNet(infeature)
+    new_params = GNNmodel.state_dict().copy()
+    GNNmodel.load_state_dict(new_params)
+    updated_feature = GNNmodel
+    model = generate_prediction_with_updated_features(model, updated_feature, num_classes=NUM_CLASSES)
     model = model.to(DEVICE)
     # Get the model parameters
     params = [p for p in model.parameters() if p.requires_grad]
@@ -149,10 +150,10 @@ if __name__ == '__main__':
         print(f"Took {((end - start) / 60):.3f} minutes for epoch {epoch}")
         # Save the best model
         save_best_model(
-            val_loss_hist.value, epoch, model, optimizer
+            val_loss_hist.value, epoch, model, GNNmodel, optimizer
         )
         # Save current epoch model
-        save_model(epoch, model, optimizer)
+        save_model(epoch, model, GNNmodel, optimizer)
         # Save loss plot
         save_loss_plot(OUT_DIR, train_loss, val_loss)
 
