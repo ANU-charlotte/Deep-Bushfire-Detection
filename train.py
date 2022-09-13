@@ -88,7 +88,9 @@ if __name__ == '__main__':
     print(f"Number of training samples: {len(train_dataset)}")
     print(f"Number of validation samples: {len(valid_dataset)}\n")
     # Initialise the model and move to the computation device
-    infeature, model = create_model(num_classes=2)
+    in_features, model, num_classes = create_model(num_classes=2)
+    print(in_features.size())
+    model = generate_prediction_with_updated_features(model, in_features, num_classes)
     DEVICE = torch.device('cpu')
     checkpoint = torch.load('outputs/best_model.pth', map_location=DEVICE)
     del checkpoint['model_state_dict']['roi_heads.box_predictor.cls_score.weight']

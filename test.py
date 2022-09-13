@@ -4,17 +4,24 @@ import torch
 import glob as glob
 import os
 import time
-from model import create_model
+from model import create_model,generate_prediction_with_updated_features
 from config import (
     NUM_CLASSES, DEVICE, CLASSES
 )
 import time
+import torch
+import torch.nn as nn
+from torchvision import models
 '''
 test.py runs model on testing images, and display the images. Similar to video.py.
 '''
-# TODO: Add evaluation metric for test scores
+
 # load the best model and trained weights
-model = create_model(num_classes=NUM_CLASSES)
+in_features, model, num_classes = create_model(num_classes=NUM_CLASSES)
+
+# Introduce GNN after in_feature
+
+model = generate_prediction_with_updated_features(model, in_features, num_classes)
 checkpoint = torch.load('outputs/best_model.pth', map_location=DEVICE)
 model.load_state_dict(checkpoint['model_state_dict'])
 print(model.to(DEVICE).eval())
@@ -64,7 +71,7 @@ for i in range(len(test_images)):
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0),
                         2, lineType=cv2.LINE_AA)
         cv2.imshow('Prediction', orig_image)
-        cv2.waitKey(1)
+        cv2.waitKey(0)
         cv2.imwrite(f"test_predictions/{image_name}.jpg", orig_image, )
     print(f"Image {i + 1} done...")
     print('-' * 50)
