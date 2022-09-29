@@ -132,7 +132,7 @@ class ASPP(nn.Module):
 
 
 class CoattentionModel(nn.Module):
-    def __init__(self, block, layers, num_classes, all_channel=1024, all_dim=60):  # 473./8=60
+    def __init__(self, block, layers, num_classes, all_channel=256, all_dim=60):  # 473./8=60
         super(CoattentionModel, self).__init__()
         #self.encoder = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
         self.linear_e = nn.Linear(all_channel, all_channel, bias=False)
@@ -263,3 +263,4 @@ class CoattentionModel(nn.Module):
 def GNNNet(num_classes=2):
     model = CoattentionModel(Bottleneck, [3, 4, 23, 3], num_classes - 1)
     return model
+
