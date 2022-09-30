@@ -177,9 +177,9 @@ class CoattentionModel(nn.Module):
         query1s = infeature3
 
 
-        x1s = torch.zeros(batch_num, 1, input_size[0], input_size[1]).cuda()
-        x2s = torch.zeros(batch_num, 1, input_size[0], input_size[1]).cuda()
-        x3s = torch.zeros(batch_num, 1, input_size[0], input_size[1]).cuda()
+        x1s = torch.zeros(batch_num, 1, input_size[0], input_size[1]).cpu()
+        x2s = torch.zeros(batch_num, 1, input_size[0], input_size[1]).cpu()
+        x3s = torch.zeros(batch_num, 1, input_size[0], input_size[1]).cpu()
         start_time = time.time()
         for ii in range(batch_num):
             exemplar = exemplars[ii, :, :, :][None].contiguous().clone()

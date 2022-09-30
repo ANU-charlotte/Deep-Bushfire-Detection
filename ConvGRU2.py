@@ -21,12 +21,12 @@ class ConvGRUCell(nn.Module):
         self.update_gate = nn.Conv2d(input_size + hidden_size, hidden_size, kernel_size, padding=self.padding)
         self.out_gate = nn.Conv2d(input_size + hidden_size, hidden_size, kernel_size, padding=self.padding)
 
-        init.orthogonal(self.reset_gate.weight)
-        init.orthogonal(self.update_gate.weight)
-        init.orthogonal(self.out_gate.weight)
-        init.constant(self.reset_gate.bias, 0.)
-        init.constant(self.update_gate.bias, 0.)
-        init.constant(self.out_gate.bias, 0.)
+        init.orthogonal_(self.reset_gate.weight)
+        init.orthogonal_(self.update_gate.weight)
+        init.orthogonal_(self.out_gate.weight)
+        init.constant_(self.reset_gate.bias, 0.)
+        init.constant_(self.update_gate.bias, 0.)
+        init.constant_(self.out_gate.bias, 0.)
 
     def forward(self, input_, prev_state):
 
