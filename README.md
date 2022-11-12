@@ -1,5 +1,5 @@
 # Deep-Bushfire-Detection
-  [![link to video](https://youtu.be/svnkKFeQUZs)
+  [![IMAGE ALT TEXT](http://img.youtube.com/vi/svnkKFeQUZs/0.jpg)](https://youtu.be/svnkKFeQUZs)
 
 *Click on image to view the current detection model tested on test videos. Alternatively: https://youtu.be/svnkKFeQUZs
 
